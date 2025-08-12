@@ -1,10 +1,19 @@
 # app/services/workers.py
-import csv, io, threading, time
+import os, sys, csv, io, threading
 from pathlib import Path
 from .otcs import delete_member
 
-LOG_DIR = (Path(__file__).resolve().parents[1] / "data" / "logs")
+def _writable_root() -> Path:
+    if getattr(sys, "frozen", False):
+        # no pacote, escreve na pasta atual (onde o exe foi iniciado)
+        try: return Path(os.getcwd()).resolve()
+        except Exception: return Path(".").resolve()
+    # dev: raiz do pacote app
+    return Path(__file__).resolve().parents[1]
+
+LOG_DIR = _writable_root() / "data" / "logs"
 LOG_DIR.mkdir(parents=True, exist_ok=True)
+
 
 class Jobs:
     def __init__(self):
